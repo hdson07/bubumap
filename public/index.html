@@ -80,6 +80,7 @@ tbody tr:hover,tbody tr.on{background:#edf3ff}
 .no-detail{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
 .detail-btn{background:var(--blue);color:white;border:none;padding:3px 8px;border-radius:4px;font-size:10px;cursor:pointer;font-weight:600;margin-left:6px;vertical-align:middle}
 .detail-btn:hover{background:#1a5cd4}
+.ver-new{display:inline-block;background:#ff6b35;color:white;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;vertical-align:middle;margin-left:3px;letter-spacing:.5px}
 /* 평가 점수 */
 .eval-section{margin-top:16px}
 .eval-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -101,15 +102,113 @@ tbody tr:hover,tbody tr.on{background:#edf3ff}
 .iw-fav{background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;margin-top:6px;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
 .iw-fav:hover{background:#fff3e0}
 .iw-fav.active{background:#fff3e0;border-color:#ff9800}
-@media(max-width:900px){.layout{flex-direction:column;height:auto}#map{flex:none;height:50vh;min-width:100%}.sidebar{flex:none;width:100%;max-width:100%;height:50vh}}
+/* === 모바일 탭 토글 === */
+.mobile-tabs{display:none;background:white;border-bottom:1px solid var(--line)}
+.mobile-tabs button{flex:1;padding:10px 0;border:none;background:white;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.mobile-tabs button.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* === 모바일 반응형 === */
+@media(max-width:900px){
+  /* 탭 토글 표시 */
+  .mobile-tabs{display:flex}
+
+  /* 헤더 컴팩트 */
+  header{padding:12px 16px 8px}
+  h1{font-size:16px}
+  header p{font-size:10.5px;line-height:1.4}
+  .badge{font-size:9.5px;padding:1px 5px}
+
+  /* 레이아웃: 전체 높이 사용, 탭으로 전환 */
+  .layout{flex-direction:column;height:calc(100vh - 110px);position:relative}
+  #map{flex:none;height:100%;min-width:100%;transition:height .2s}
+  .sidebar{flex:none;width:100%;max-width:100%;height:100%;position:absolute;top:0;left:0;right:0;bottom:0;background:white;z-index:3;display:none}
+  .sidebar.mobile-show{display:flex}
+  #map.mobile-hide{display:none}
+
+  /* 필터바 최적화 */
+  .filter-bar{padding:8px 10px}
+  .filter-row{gap:4px;margin-bottom:4px}
+  .filter-row label{font-size:10px;min-width:24px}
+  .filter-row select,.filter-row input{font-size:11px;padding:6px 8px;border-radius:6px}
+  .filter-row input{width:100%;flex:1}
+  /* 첫 번째 필터행: 2열 그리드 */
+  .filter-row:first-child{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:4px;align-items:center}
+  .filter-row:first-child input{grid-column:1/-1}
+  /* 퀵필터 버튼 가로 스크롤 */
+  .filter-row:last-child{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+  .filter-row:last-child::-webkit-scrollbar{display:none}
+  .btn{padding:6px 11px;font-size:11px;white-space:nowrap;flex-shrink:0}
+
+  /* 테이블 최적화 */
+  table{font-size:12px}
+  th,td{padding:8px 5px}
+  /* 모바일에서 불필요 컬럼 숨김 */
+  th:nth-child(5),td:nth-child(5),
+  th:nth-child(6),td:nth-child(6),
+  th:nth-child(8),td:nth-child(8),
+  th:nth-child(9),td:nth-child(9){display:none}
+  .nm{font-size:13px}
+  .price{font-size:13px}
+  .sub{font-size:10px}
+  td:first-child{font-size:13px}
+
+  /* 범례 모바일 */
+  .legend-box{bottom:12px;left:8px;padding:8px 10px;font-size:10px;max-width:140px;opacity:.92}
+
+  /* 인포윈도우 모바일 */
+  .info-wrap{min-width:180px;max-width:75vw;padding:10px 12px;font-size:12px}
+  .info-wrap .iw-name{font-size:13px}
+  .info-wrap .iw-price{font-size:14px}
+
+  /* 모달 전체화면 */
+  .modal{width:100%;max-width:100vw;max-height:100vh;height:100vh;border-radius:0;animation:modalSlideUp .25s ease}
+  @keyframes modalSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-head{padding:14px 16px 0;border-radius:0}
+  .modal-head h2{font-size:16px}
+  .modal-body{padding:8px 16px 24px}
+  .modal-close{font-size:26px;padding:4px 8px}
+  .detail-grid{grid-template-columns:64px 1fr;font-size:12px}
+  .pros-cons{grid-template-columns:1fr;gap:8px}
+  .eval-bars{grid-template-columns:48px 1fr 32px;font-size:11px}
+
+  /* 푸터 컴팩트 */
+  .footer{padding:8px 16px;font-size:10px}
+
+  /* 터치 친화적 */
+  .fav-btn{font-size:18px;padding:4px 6px}
+  tbody tr{-webkit-tap-highlight-color:rgba(39,110,241,.1)}
+  .detail-btn{padding:4px 10px;font-size:11px}
+  .iw-fav{padding:6px 12px;font-size:13px}
+
+  /* 요약바 */
+  .summary{padding:6px 10px;font-size:11px}
+}
+
+/* 작은 모바일 (375px 이하) */
+@media(max-width:375px){
+  h1{font-size:14px}
+  header p{font-size:9.5px}
+  .badge{font-size:8.5px}
+  .filter-row select,.filter-row input{font-size:10.5px;padding:5px 6px}
+  .btn{padding:5px 8px;font-size:10px}
+  table{font-size:11px}
+  th,td{padding:6px 4px}
+  /* 역·도보 컬럼도 숨김 */
+  th:nth-child(7),td:nth-child(7){display:none}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>서울 10-12억대 실거주 아파트 후보</h1>
-  <p><span class="badge">전용 59㎡</span><span class="badge">전용 84㎡</span> 2026년 최근 실거래가 기준 · 100세대 이상 · 신논현/신사 1시간 이내 · 서울+성남/분당</p>
+  <h1>서울 10-14억대 실거주 아파트 후보</h1>
+  <p><span class="badge">전용 59㎡</span><span class="badge">전용 84㎡</span><span class="badge" style="background:#fff3e0;color:#ff6b35">v2 +49개</span> 2026년 최근 실거래가 기준 · 100세대 이상 · 신논현/신사 1시간 이내 · 서울+성남/분당</p>
 </header>
+
+<div class="mobile-tabs" id="mobileTabs">
+  <button class="active" data-tab="map">🗺️ 지도</button>
+  <button data-tab="list">📋 목록</button>
+</div>
 
 <div class="layout">
   <div id="map" style="position:relative">
@@ -146,10 +245,21 @@ tbody tr:hover,tbody tr.on{background:#edf3ff}
         <input id="sf" type="text" placeholder="단지·구·역 검색" oninput="render()">
       </div>
       <div class="filter-row">
+        <label>버전</label>
+        <select id="vf" onchange="render()">
+          <option value="all">전체 (102개)</option>
+          <option value="1">v1 기존 (53개)</option>
+          <option value="2">v2 신규 (49개)</option>
+        </select>
+      </div>
+      <div class="filter-row">
         <button class="btn on" data-f="all">전체</button>
         <button class="btn" data-f="fast">45분이내</button>
         <button class="btn" data-f="big">500세대+</button>
+        <button class="btn" data-f="yeongdeungpo">영등포</button>
         <button class="btn" data-f="gangdong">강동</button>
+        <button class="btn" data-f="gangseo">강서</button>
+        <button class="btn" data-f="songpa">송파</button>
         <button class="btn" data-f="gwanak">관악</button>
         <button class="btn" data-f="dongjak">동작</button>
         <button class="btn" data-f="seongbuk">성북</button>
@@ -198,7 +308,8 @@ function initApp() {
 }
 
 // === 즐겨찾기 localStorage 관리 ===
-function getFavs(){ try{ return JSON.parse(localStorage.getItem('apt_favs')||'[]') }catch(e){ return [] } }
+const DEFAULT_FAVS=["사가정센트럴아이파크","래미안이문2차","황학롯데캐슬","보라매삼성","제일(사당)","명일GS","화양현대","동양(양평동6가)","양평현대6차","문래대림","부영(등촌)","드림리버빌","리버힐삼성"];
+function getFavs(){ try{ const v=localStorage.getItem('apt_favs'); if(v===null){setFavs(DEFAULT_FAVS);return [...DEFAULT_FAVS]} return JSON.parse(v) }catch(e){ return [...DEFAULT_FAVS] } }
 function setFavs(arr){ localStorage.setItem('apt_favs', JSON.stringify(arr)) }
 function isFav(name){ return getFavs().includes(name) }
 function toggleFav(name){
@@ -215,11 +326,13 @@ function updateFavCount(){
 
 // === 데이터 가공 ===
 const raw = APT_RAW;
+const V1_COUNT = 53; // 기존 데이터 수 (v1)
 const data = raw.map((a, i) => ({
   i, name:a[0], gu:a[1], price:a[2], date:'2026-'+a[3], ds:a[3],
   area:a[4], units:a[5], station:a[6], walk:a[7],
   sinsa:a[8], sinnon:a[9], lat:a[10], lng:a[11], pv:a[12], built:a[13],
   type: a[4] < 70 ? 59 : 84,
+  ver: i < V1_COUNT ? 1 : 2,
   tags: [
     a[1].startsWith('강동') ? 'gangdong' : '',
     a[1].startsWith('관악') ? 'gwanak' : '',
@@ -228,6 +341,9 @@ const data = raw.map((a, i) => ({
     a[1].startsWith('동대문') ? 'dongdaemun' : '',
     a[1].startsWith('서대문') ? 'seocho' : '',
     a[1].startsWith('성남') ? 'seongnam' : '',
+    a[1].startsWith('강서') ? 'gangseo' : '',
+    a[1].startsWith('영등포') ? 'yeongdeungpo' : '',
+    a[1].startsWith('송파') ? 'songpa' : '',
     (a[8] <= 45 && a[9] <= 45) ? 'fast' : '',
     a[5] >= 500 ? 'big' : '',
   ]
@@ -283,8 +399,10 @@ function render() {
   const pf = document.getElementById('pf').value;
   const tf = document.getElementById('tf').value;
   const sf = document.getElementById('sf').value.toLowerCase();
+  const vf = document.getElementById('vf').value;
 
   let f = data.filter(h => {
+    if (vf !== 'all' && h.ver !== Number(vf)) return false;
     if (currentTag === 'fav' && !isFav(h.name)) return false;
     if (currentTag !== 'all' && currentTag !== 'fav' && !h.tags.includes(currentTag)) return false;
     if (tf === '59' && h.type !== 59) return false;
@@ -321,6 +439,7 @@ function render() {
     const markerEl = document.createElement('div');
     markerEl.className = 'mk-label';
     markerEl.style.background = c;
+    if(h.ver===2) markerEl.style.outline='2px solid #ff6b35';
     markerEl.textContent = n;
 
     const overlay = new kakao.maps.CustomOverlay({
@@ -383,7 +502,7 @@ function render() {
     const faved = isFav(h.name);
     tr.innerHTML = `<td style="text-align:center;font-weight:800;color:${c};font-size:12px">${n}</td>
       <td style="text-align:center"><button class="fav-btn ${faved?'active':''}" data-name="${h.name}">${faved?'⭐':'☆'}</button></td>
-      <td><div class="nm">${h.name}</div><div class="sub">${h.gu}</div></td>
+      <td><div class="nm">${h.name}${h.ver===2?' <span class="ver-new">NEW</span>':''}</div><div class="sub">${h.gu}</div></td>
       <td><div class="price">${h.price}</div><div class="sub">${h.date}</div></td>
       <td><span class="tt ${tc}">${h.area}㎡</span></td>
       <td style="text-align:right;font-size:11px">${h.units.toLocaleString()}세대<div class="sub">${h.built}년 (${2026-h.built}년차)</div></td>
@@ -410,6 +529,11 @@ function render() {
       map.setLevel(5);
       document.querySelectorAll('tr.on').forEach(e => e.classList.remove('on'));
       tr.classList.add('on');
+      // 모바일: 목록에서 클릭 시 지도 탭으로 전환
+      if (window.innerWidth <= 900) {
+        const mapBtn = document.querySelector('#mobileTabs button[data-tab="map"]');
+        if (mapBtn) mapBtn.click();
+      }
     };
   });
 
@@ -517,6 +641,25 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal();
+});
+
+// === 모바일 탭 전환 ===
+document.querySelectorAll('#mobileTabs button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#mobileTabs button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const tab = this.dataset.tab;
+    const mapEl = document.getElementById('map');
+    const sidebar = document.querySelector('.sidebar');
+    if (tab === 'map') {
+      mapEl.classList.remove('mobile-hide');
+      sidebar.classList.remove('mobile-show');
+      if (map) map.relayout();
+    } else {
+      mapEl.classList.add('mobile-hide');
+      sidebar.classList.add('mobile-show');
+    }
+  });
 });
 
 // 앱 시작

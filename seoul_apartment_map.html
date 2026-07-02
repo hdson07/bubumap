@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서울 10-12억 실거주 아파트 후보 지도</title>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=34a2177c523476e6ce7b8d2e17d960c4&autoload=false"></script>
+<style>
+:root{--ink:#172033;--muted:#667085;--line:#d9e1ea;--card:#fff;--blue:#276ef1;--bg:#f4f7fb;--good:#0f8a5f;--accent:#ff6b35}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);font-family:Pretendard,"Noto Sans KR",system-ui,sans-serif;color:var(--ink)}
+header{padding:18px 24px 10px;background:white;border-bottom:1px solid var(--line)}
+h1{font-size:21px;margin-bottom:3px}
+header p{color:var(--muted);font-size:12px;line-height:1.5}
+.badge{display:inline-block;background:#edf4ff;color:var(--blue);padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;margin-right:3px}
+.layout{display:flex;height:calc(100vh - 72px)}
+#map{flex:1;min-width:50%}
+.sidebar{width:500px;max-width:48%;display:flex;flex-direction:column;background:white;border-left:1px solid var(--line)}
+.filter-bar{padding:10px 14px;border-bottom:1px solid var(--line);background:#fafbfc}
+.filter-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.filter-row:last-child{margin-bottom:0}
+.filter-row label{font-size:11px;color:var(--muted);font-weight:600;min-width:30px}
+.filter-row select,.filter-row input{padding:4px 7px;border:1px solid var(--line);border-radius:5px;font-size:11.5px}
+.filter-row input{width:130px}
+.btn{border:1px solid var(--line);background:white;border-radius:99px;padding:4px 9px;cursor:pointer;color:#344054;font-size:11px;font-weight:500;transition:all .12s}
+.btn:hover{border-color:#999}.btn.on{background:var(--ink);color:white;border-color:var(--ink)}
+.summary{padding:6px 14px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--muted);background:#f8f9fb}
+.summary b{color:var(--ink)}
+.tablewrap{flex:1;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th{text-align:left;color:var(--muted);font-weight:600;padding:7px 6px;border-bottom:2px solid var(--line);white-space:nowrap;position:sticky;top:0;background:white;z-index:2}
+td{padding:8px 6px;border-bottom:1px solid #edf0f4;vertical-align:top}
+tbody tr{cursor:pointer;transition:background .1s}
+tbody tr:hover,tbody tr.on{background:#edf3ff}
+.nm{font-weight:750;font-size:12px}.sub{color:var(--muted);margin-top:1px;font-size:10px}
+.price{font-weight:800;color:#c62828;white-space:nowrap;font-size:12px}
+.commute{color:var(--good);font-weight:700;white-space:nowrap;text-align:center}
+.tt{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9.5px;font-weight:600}
+.t59{background:#e8f5e9;color:#2e7d32}.t84{background:#e3f2fd;color:#1565c0}
+.footer{padding:10px 24px;font-size:11px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);background:white}
+.footer a{color:var(--blue)}
+/* Favorite styles */
+.fav-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:2px 4px;transition:transform .15s;line-height:1}
+.fav-btn:hover{transform:scale(1.3)}
+.fav-btn.active{animation:pop .25s}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+.iw-fav{background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;margin-top:6px;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.iw-fav:hover{background:#fff3e0}
+.iw-fav.active{background:#fff3e0;border-color:#ff9800}
+/* Kakao overlay styles */
+.mk-label{padding:4px 8px;border-radius:12px;font-size:10px;font-weight:800;color:white;text-align:center;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.35);border:2px solid white;cursor:pointer;min-width:22px}
+.mk-label:hover{transform:scale(1.15);z-index:100}
+.work-label{background:#c62828;padding:4px 8px;border-radius:5px;font-size:11px;font-weight:700;color:white;box-shadow:0 2px 8px rgba(0,0,0,.35);white-space:nowrap}
+.info-wrap{background:white;border-radius:10px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.18);font-size:12px;line-height:1.55;min-width:200px;max-width:260px;border:1px solid #e0e0e0}
+.info-wrap .iw-name{font-weight:800;font-size:14px;color:#1a237e;margin-bottom:4px}
+.info-wrap .iw-price{color:#c62828;font-weight:800;font-size:15px}
+.info-wrap .iw-detail{color:#555;margin-top:4px}
+.info-wrap .iw-close{position:absolute;top:6px;right:8px;cursor:pointer;font-size:16px;color:#999;background:none;border:none}
+.legend-box{position:absolute;bottom:20px;left:12px;z-index:5;background:white;padding:10px 12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:11px;line-height:1.9}
+.legend-box b{display:block;margin-bottom:2px}
+.legend-box div{display:flex;align-items:center;gap:6px}
+.legend-box span{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid white;box-shadow:0 1px 2px rgba(0,0,0,.15);flex-shrink:0}
+@media(max-width:900px){.layout{flex-direction:column;height:auto}#map{height:50vh;min-width:100%}.sidebar{width:100%;max-width:100%;height:50vh}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>서울 10-12억대 실거주 아파트 후보</h1>
+  <p><span class="badge">전용 59㎡</span><span class="badge">전용 84㎡</span> 2026년 최근 실거래가 기준 · 100세대 이상 · 신논현/신사 1시간 이내</p>
+</header>
+
+<div class="layout">
+  <div id="map" style="position:relative">
+    <div class="legend-box">
+      <b>실거래가</b>
+      <div><span style="background:#22a06b"></span>10.0~10.9억</div>
+      <div><span style="background:#276ef1"></span>11.0~11.4억</div>
+      <div><span style="background:#f59e0b"></span>11.5~11.9억</div>
+      <div><span style="background:#e8437f"></span>12.0억+</div>
+      <div style="margin-top:3px"><span style="background:#c62828"></span>직장 위치</div>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="filter-bar">
+      <div class="filter-row">
+        <label>금액</label>
+        <select id="pf" onchange="render()">
+          <option value="all">전체 (10-12억+)</option>
+          <option value="10-10.5">10.0 ~ 10.5억</option>
+          <option value="10.5-11">10.5 ~ 11.0억</option>
+          <option value="11-11.5">11.0 ~ 11.5억</option>
+          <option value="11.5-12">11.5 ~ 12.0억</option>
+          <option value="12+">12.0억 이상</option>
+        </select>
+        <label>타입</label>
+        <select id="tf" onchange="render()">
+          <option value="all">전체</option>
+          <option value="59">59㎡</option>
+          <option value="84">84㎡</option>
+        </select>
+        <input id="sf" type="text" placeholder="단지·구·역 검색" oninput="render()">
+      </div>
+      <div class="filter-row">
+        <button class="btn on" data-f="all">전체</button>
+        <button class="btn" data-f="fast">45분이내</button>
+        <button class="btn" data-f="big">500세대+</button>
+        <button class="btn" data-f="gangdong">강동</button>
+        <button class="btn" data-f="gwanak">관악</button>
+        <button class="btn" data-f="dongjak">동작</button>
+        <button class="btn" data-f="seongbuk">성북</button>
+        <button class="btn" data-f="dongdaemun">동대문</button>
+        <button class="btn" data-f="seocho">서대문</button>
+        <button class="btn" data-f="fav" id="favFilterBtn">⭐ 즐겨찾기</button>
+      </div>
+    </div>
+    <div class="summary" id="sum"></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>#</th><th style="width:28px">★</th><th>단지 / 위치</th><th>실거래가</th><th>타입</th><th>세대</th><th>역·도보</th><th>신사</th><th>신논현</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <b>유의사항</b> — 통근시간은 출근시간대 지하철+도보 보수적 추정치. 같은 단지도 동·층·향에 따라 가격차 큼.
+  계약 전 <a href="https://rt.molit.go.kr/" target="_blank">국토교통부 실거래가 공개시스템</a> 확인 필수.
+  출처: 국토교통부 실거래가, <a href="https://www.aptbong.com" target="_blank">아파트봉</a>, <a href="https://kbland.kr/" target="_blank">KB부동산</a>
+</div>
+
+<script src="apartment_data.js"></script>
+<script>
+const raw = APT_RAW;
+
+// 즐겨찾기 localStorage 관리
+function getFavs(){ try{ return JSON.parse(localStorage.getItem('apt_favs')||'[]') }catch(e){ return [] } }
+function setFavs(arr){ localStorage.setItem('apt_favs', JSON.stringify(arr)) }
+function isFav(name){ return getFavs().includes(name) }
+function toggleFav(name){
+  const favs=getFavs();
+  const idx=favs.indexOf(name);
+  if(idx>=0) favs.splice(idx,1); else favs.push(name);
+  setFavs(favs);
+}
+
+const data=raw.map((a,i)=>({
+  i,name:a[0],gu:a[1],price:a[2],date:'2026-'+a[3],ds:a[3],
+  area:a[4],units:a[5],station:a[6],walk:a[7],
+  sinsa:a[8],sinnon:a[9],lat:a[10],lng:a[11],pv:a[12],
+  type:a[4]<70?59:84,
+  tags:[
+    a[1].startsWith('강동')?'gangdong':'',
+    a[1].startsWith('관악')?'gwanak':'',
+    a[1].startsWith('동작')?'dongjak':'',
+    a[1].startsWith('성북')?'seongbuk':'',
+    a[1].startsWith('동대문')?'dongdaemun':'',
+    a[1].startsWith('서대문')?'seocho':'',
+    (a[8]<=45&&a[9]<=45)?'fast':'',
+    a[5]>=500?'big':'',
+  ]
+}));
+
+function gc(pv){return pv<11?'#22a06b':pv<11.5?'#276ef1':pv<12?'#f59e0b':'#e8437f'}
+
+// === Kakao Map (autoload=false이므로 load 콜백 사용) ===
+kakao.maps.load(function(){
+const mapContainer = document.getElementById('map');
+const mapOption = {
+  center: new kakao.maps.LatLng(37.545, 127.00),
+  level: 8
+};
+const map = new kakao.maps.Map(mapContainer, mapOption);
+
+// 줌 컨트롤
+map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+
+// 지도 타입 컨트롤 (일반/위성)
+map.addControl(new kakao.maps.MapTypeControl(), kakao.maps.ControlPosition.TOPRIGHT);
+
+// 직장 마커: 신논현역
+const workOverlay1 = new kakao.maps.CustomOverlay({
+  position: new kakao.maps.LatLng(37.5045, 127.0252),
+  content: '<div class="work-label">신논현역<span style="font-size:9px;opacity:.7;margin-left:3px">9호선·신분당선</span></div>',
+  yAnchor: 1.3, zIndex: 10
+});
+workOverlay1.setMap(map);
+
+// 직장 마커: 신사역
+const workOverlay2 = new kakao.maps.CustomOverlay({
+  position: new kakao.maps.LatLng(37.5165, 127.0205),
+  content: '<div class="work-label">신사역<span style="font-size:9px;opacity:.7;margin-left:3px">3호선</span></div>',
+  yAnchor: 1.3, zIndex: 10
+});
+workOverlay2.setMap(map);
+
+// === Render ===
+let overlays = [];
+let openInfo = null;
+let currentTag = 'all';
+
+function clearOverlays() {
+  overlays.forEach(o => o.setMap(null));
+  overlays = [];
+  if (openInfo) { openInfo.setMap(null); openInfo = null; }
+}
+
+function render() {
+  clearOverlays();
+  const pf = document.getElementById('pf').value;
+  const tf = document.getElementById('tf').value;
+  const sf = document.getElementById('sf').value.toLowerCase();
+
+  let f = data.filter(h => {
+    if (currentTag === 'fav' && !isFav(h.name)) return false;
+    if (currentTag !== 'all' && currentTag !== 'fav' && !h.tags.includes(currentTag)) return false;
+    if (tf === '59' && h.type !== 59) return false;
+    if (tf === '84' && h.type !== 84) return false;
+    if (pf === '10-10.5' && (h.pv < 10 || h.pv >= 10.5)) return false;
+    if (pf === '10.5-11' && (h.pv < 10.5 || h.pv >= 11)) return false;
+    if (pf === '11-11.5' && (h.pv < 11 || h.pv >= 11.5)) return false;
+    if (pf === '11.5-12' && (h.pv < 11.5 || h.pv >= 12)) return false;
+    if (pf === '12+' && h.pv < 12) return false;
+    if (sf && !h.name.toLowerCase().includes(sf) && !h.gu.toLowerCase().includes(sf) && !h.station.toLowerCase().includes(sf)) return false;
+    return true;
+  });
+  f.sort((a, b) => Math.min(a.sinsa, a.sinnon) - Math.min(b.sinsa, b.sinnon));
+
+  // Summary
+  const ap = f.length ? (f.reduce((s, h) => s + h.pv, 0) / f.length).toFixed(2) : '-';
+  const t59 = f.filter(h => h.type === 59).length;
+  const t84 = f.filter(h => h.type === 84).length;
+  const ac = f.length ? Math.round(f.reduce((s, h) => s + Math.min(h.sinsa, h.sinnon), 0) / f.length) : '-';
+  document.getElementById('sum').innerHTML = `<b>${f.length}</b>개 단지 · 평균 <b>${ap}억</b> · 59㎡ <b>${t59}</b> · 84㎡ <b>${t84}</b> · 평균통근 <b>${ac}분</b>`;
+
+  const rows = document.getElementById('rows');
+  rows.innerHTML = '';
+
+  f.forEach((h, vi) => {
+    const c = gc(h.pv);
+    const n = vi + 1;
+    const pos = new kakao.maps.LatLng(h.lat, h.lng);
+
+    // 마커 오버레이
+    const markerEl = document.createElement('div');
+    markerEl.className = 'mk-label';
+    markerEl.style.background = c;
+    markerEl.textContent = n;
+
+    const overlay = new kakao.maps.CustomOverlay({
+      position: pos,
+      content: markerEl,
+      yAnchor: 0.5,
+      zIndex: 3
+    });
+    overlay.setMap(map);
+    overlays.push(overlay);
+
+    // 정보창 컨텐츠
+    const favActive = isFav(h.name);
+    const infoContent = document.createElement('div');
+    infoContent.innerHTML = `<div class="info-wrap">
+      <div class="iw-name">${h.name}</div>
+      <div>${h.gu}</div>
+      <div class="iw-price">${h.price}</div>
+      <div class="iw-detail">
+        ${h.area}㎡ · ${h.units.toLocaleString()}세대 · ${h.date}<br>
+        🚇 ${h.station} 도보 ${h.walk}분<br>
+        신사 ${h.sinsa}분 · 신논현 ${h.sinnon}분
+      </div>
+      <button class="iw-fav ${favActive?'active':''}" data-name="${h.name}">${favActive?'⭐ 즐겨찾기 해제':'☆ 즐겨찾기'}</button>
+    </div>`;
+    infoContent.querySelector('.iw-fav').onclick = function(e){
+      e.stopPropagation();
+      toggleFav(h.name);
+      const on=isFav(h.name);
+      this.className='iw-fav'+(on?' active':'');
+      this.textContent=on?'⭐ 즐겨찾기 해제':'☆ 즐겨찾기';
+      // 테이블 행의 별도 갱신
+      const favBtn=rows.querySelector(`tr[data-vi="${vi}"] .fav-btn`);
+      if(favBtn){favBtn.textContent=on?'⭐':'☆';favBtn.className='fav-btn'+(on?' active':'');}
+      updateFavCount();
+    };
+
+    const infoOverlay = new kakao.maps.CustomOverlay({
+      position: pos,
+      content: infoContent.firstElementChild,
+      yAnchor: 1.4,
+      zIndex: 20
+    });
+
+    // 마커 클릭 → 정보창
+    markerEl.onclick = () => {
+      if (openInfo) openInfo.setMap(null);
+      infoOverlay.setMap(map);
+      openInfo = infoOverlay;
+      map.panTo(pos);
+      // 테이블 행 강조
+      document.querySelectorAll('tr.on').forEach(e => e.classList.remove('on'));
+      const targetTr = rows.querySelector(`tr[data-vi="${vi}"]`);
+      if (targetTr) {
+        targetTr.classList.add('on');
+        targetTr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    // 테이블 행
+    const tr = document.createElement('tr');
+    tr.dataset.vi = vi;
+    const tc = h.type === 59 ? 't59' : 't84';
+    const faved = isFav(h.name);
+    tr.innerHTML = `<td style="text-align:center;font-weight:800;color:${c};font-size:12px">${n}</td>
+      <td style="text-align:center"><button class="fav-btn ${faved?'active':''}" data-name="${h.name}">${faved?'⭐':'☆'}</button></td>
+      <td><div class="nm">${h.name}</div><div class="sub">${h.gu}</div></td>
+      <td><div class="price">${h.price}</div><div class="sub">${h.date}</div></td>
+      <td><span class="tt ${tc}">${h.area}㎡</span></td>
+      <td style="text-align:right;font-size:11px">${h.units.toLocaleString()}</td>
+      <td><b style="font-size:11px">${h.station}</b><div class="sub">도보${h.walk}분</div></td>
+      <td class="commute">${h.sinsa}</td>
+      <td class="commute">${h.sinnon}</td>`;
+    rows.appendChild(tr);
+
+    // 즐겨찾기 버튼 클릭
+    tr.querySelector('.fav-btn').onclick = function(e){
+      e.stopPropagation();
+      toggleFav(h.name);
+      const on=isFav(h.name);
+      this.textContent=on?'⭐':'☆';
+      this.className='fav-btn'+(on?' active':'');
+      updateFavCount();
+      if(currentTag==='fav') render();
+    };
+
+    tr.onclick = () => {
+      if (openInfo) openInfo.setMap(null);
+      infoOverlay.setMap(map);
+      openInfo = infoOverlay;
+      map.setCenter(pos);
+      map.setLevel(5);
+      document.querySelectorAll('tr.on').forEach(e => e.classList.remove('on'));
+      tr.classList.add('on');
+    };
+  });
+
+  // 지도 클릭 시 정보창 닫기
+  kakao.maps.event.addListener(map, 'click', () => {
+    if (openInfo) { openInfo.setMap(null); openInfo = null; }
+  });
+}
+
+// 즐겨찾기 카운트 업데이트
+function updateFavCount(){
+  const cnt=getFavs().length;
+  const btn=document.getElementById('favFilterBtn');
+  btn.textContent=cnt>0?`⭐ 즐겨찾기 (${cnt})`:'⭐ 즐겨찾기';
+}
+
+// 필터 버튼
+document.querySelectorAll('.btn').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.btn').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    currentTag = b.dataset.f;
+    render();
+  };
+});
+
+updateFavCount();
+render();
+}); // kakao.maps.load end
+</script>
+</body>
+</html>

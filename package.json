@@ -1,0 +1,13 @@
+{
+  "name": "seoul-apartment-map",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "tunnel": "npx localtunnel --port 3000 --subdomain bubu"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "dotenv": "^16.4.0"
+  }
+}

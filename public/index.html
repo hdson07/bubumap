@@ -308,7 +308,7 @@ function initApp() {
 }
 
 // === 즐겨찾기 localStorage 관리 ===
-const DEFAULT_FAVS=["사가정센트럴아이파크","래미안이문2차","황학롯데캐슬","보라매삼성","제일(사당)","명일GS","화양현대","동양(양평동6가)","양평현대6차","문래대림","부영(등촌)","드림리버빌","리버힐삼성"];
+const DEFAULT_FAVS=["명일GS","동양(양평동6가)","중앙동힐스테이트2차","관악푸르지오"];
 function getFavs(){ try{ const v=localStorage.getItem('apt_favs'); if(v===null){setFavs(DEFAULT_FAVS);return [...DEFAULT_FAVS]} return JSON.parse(v) }catch(e){ return [...DEFAULT_FAVS] } }
 function setFavs(arr){ localStorage.setItem('apt_favs', JSON.stringify(arr)) }
 function isFav(name){ return getFavs().includes(name) }
